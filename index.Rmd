@@ -9,7 +9,8 @@ output: html_document
 - Instructors: [Brian Caffo](http://www.bcaffo.com/), Roger Peng, Jeff Leek
 - Class [Lectures and source code](https://github.com/bcaffo/courses/tree/master/06_StatisticalInference)
 - Class Textbook: [Statistical inference for data science](https://leanpub.com/LittleInferenceBook)
-- Class Website: [Statistical Inference on Coursera.org](https://www.coursera.org/learn/statistical-inference/home/welcome)
+- Class Website: [Statistical Inference on Coursera.org](https://www.coursera.org/learn/statistical-inference/home/welcome) 
+- [Community notes](http://datasciencespecialization.github.io/statinf/)
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
