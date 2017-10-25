@@ -1,0 +1,62 @@
+---
+title: "Lecture notes"
+author: "James Ibbetson"
+date: "October 24, 2017"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Probability module
+
+A probability measure, $P$, is a function from the collection of possible events so that the following hold:
+
+1. $0 \leq P(E) \leq 1$ 
+2. $P(\text{all possible events}) = 1$ (i.e. something must happen)
+3. If $E_1$ and $E_2$ are mutually exclusive events $P(E_1 \cup E_2) = P(E_1) + P(E_2)$. This implies $P(\cup_{i=1}^n A_i) = \sum_{i=1}^n P(A_i)$ where the ${A_i}$ are mutually exclusive.
+
+A probability mass function, $p$, evaluated at a value $x$ is the probability that a random variable takes that value. It applies to discrete values.  
+
+1. $p(x) \geq 0$ for all $x$.
+2. $\sum_{x} p(x) = 1$, where the sum is taken over all possible values for $x$.
+
+Example: the Bernouilli distribution, where $p(x) = \theta^{x} (1 - \theta)^{1-x}$. In the case of two possible outcomes, 0 and 1, then $p(1)=\theta$ and $p(0)=1-\theta$.
+
+
+###Probability density functions (important)
+
+A probability density function, *pdf*, is equivalent to probability mass function except for random variables whose values exist **on a continuum**. In this case, areas under *pdfs* correspond to probabilities. To be a valid function $f$ must satisfy:
+
+1. $f(x) \geq 0$ for all $x$  
+2. $\int{f(x)dx} = 1$
+
+The **probability density function** of the so-called beta distribution is $f(x;\alpha, \beta)=\text{constant}\cdot{x^{\alpha-1}}(1-x)^{\beta-1}$. The shape of this curve changes with the constants $\alpha$ and $\beta$ and is defined on $1\geq x \geq 0$. For a simple linear distribution use $\alpha=2$ and $\beta=1$.
+
+The **cumulative distribution function** of a random variable, $X$, is the probability the random variable is less than or equal to the value $x$. This is written as $F(x) = P(X\leq{x})$.  
+
+In `R` the `pbeta(x, a, b)` function gives the cumulative probability for the beta distribution defined by $\alpha=a$ and $\beta=b$. The `R` function for the beta distribution itself is `beta(a, b)`. Note that `x` can be a list, in which case the function returns a list.
+
+The **survival function** of a random variable $X$ is the probability the random variable is greater then the value $x$, defined as $S(x) = P(X > x)$ or $S(x) = 1 - F(x)$.
+
+Quantiles are related to probability distribution functions. Specifically, the $\alpha$th quantile of $F(x)$ is the value of $x$ such that $F(x_\alpha)=\alpha$. That is, what value of $x$ should we choose such that the area under $f(x)$ up to $x$ is equal to $\alpha$?  
+
+In `R` use the function `qbeta(x, a, b)` for quantiles of the beta distribution function.
+
+Percentiles are simply quantiles with $\alpha$ expressed as a percent. 
+
+
+## Conditional probability module
+
+
+
+
+
+
+
+
+

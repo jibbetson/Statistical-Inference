@@ -12,6 +12,16 @@ output: html_document
 - Class Website: [Statistical Inference on Coursera.org](https://www.coursera.org/learn/statistical-inference/home/welcome) 
 - [Community notes](http://datasciencespecialization.github.io/statinf/)
 
+### My work
+- [lecture notes](Notes.html)
+
+
+
+### References
+For equations and symbols in markdown docs see, e.g., [LaTeX mathematics ](https://en.wikibooks.org/wiki/LaTeX/Mathematics) and [LaTeX Math symbols](http://web.ift.uib.no/Teori/KURS/WRK/TeX/symALL.html).  
+
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
