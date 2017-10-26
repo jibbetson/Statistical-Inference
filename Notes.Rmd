@@ -1,7 +1,7 @@
 ---
 title: "Lecture notes"
 author: "James Ibbetson"
-date: "October 24, 2017"
+date: "October 25, 2017"
 output: 
   html_document:
     toc: true
@@ -10,10 +10,10 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
 ```
 
 ## Probability module
-
 A probability measure, $P$, is a function from the collection of possible events so that the following hold:
 
 1. $0 \leq P(E) \leq 1$ 
@@ -29,7 +29,6 @@ Example: the Bernouilli distribution, where $p(x) = \theta^{x} (1 - \theta)^{1-x
 
 
 ###Probability density functions (important)
-
 A probability density function, *pdf*, is equivalent to probability mass function except for random variables whose values exist **on a continuum**. In this case, areas under *pdfs* correspond to probabilities. To be a valid function $f$ must satisfy:
 
 1. $f(x) \geq 0$ for all $x$  
@@ -51,12 +50,120 @@ Percentiles are simply quantiles with $\alpha$ expressed as a percent.
 
 
 ## Conditional probability module
+Conditional probability is when additional information is provided, i.e. conditions, which changes the probability of an event occurring. For example, if you roll a die and are told that the value is odd then the probability of having rolled a $1$ is no longer $\frac{1}{6}$ but $\frac{1}{3}$.
+
+Let $B$ be an event so that $P(B) > 0$. The probability of an event $A$ given that $B$ has occurred is written as $P(A ~|~ B)$. Then the conditional probability of an event $A$ given that $B$ has occurred is:
+$$
+P(A ~|~ B) = \frac{P(A \cap B)}{P(B)}
+$$
+If $A$ and $B$ are independent then $P(A ~|~ B) = \frac{P(A) P(B)}{P(B)} = P(A)$.
+
+###Bayes' rule & diagnostic tests
+**Bayes' rule** is a famous example of conditional probability in cases where we know some marginal probabilities. It is formally written as:
+$$
+P(B ~|~ A) = \frac{P(A ~|~ B) P(B)}{P(A ~|~ B) P(B) + P(A ~|~ B^c)P(B^c)}.
+$$
+The $X^c$ notation is shorthand for not $X$, and $P(X^c) = 1 - P(X)$.
+
+Bayes' rule is very useful in diagnostic tests, where the result of the test can be either positive $+$ or negative $-$.  
+
+The **sensitivity** is defined as the probability that the test is positive given that the subject actually **has** the disease, $P(+ ~|~ D)$.  
+
+The **specificity** is defined as the probability that the test is negative given that the subject does **not have** the disease, $P(- ~|~ D^c)$.  
+
+The **positive predictive value** is the probability that the subject has the disease given that the test is positive, $P(D ~|~ +)$.  
+
+The **negative predictive value** is the probability that the subject does not have the disease given that the test is negative, $P(D^c ~|~ -)$.  
+
+The **prevalence of the disease** is the marginal probability of disease, $P(D)$.
+
+The **diagnostic likelihood ratio of a positive test**, labeled $DLR_+$, is $P(+ ~|~ D) / P(+ ~|~ D^c)$, which is the $sensitivity / (1 - specificity)$.  
+
+The **diagnostic likelihood ratio of a negative test**, labeled $DLR_-$, is $P(- ~|~ D) / P(- ~|~ D^c)$, which is the $(1 - sensitivity) / specificity$.  
+
+Event $A$ is **independent** of $B$ if $P(A ~|~ B) = P(A)$, or equivalently if $P(A \cap B) = P(A)P(B)$.  
+
+### IID random variables
+Random variables are said to be **iid** if they are **independent and identically distributed**:
+
+- Independent: statistically unrelated from one and another  
+- Identically distributed: all having been drawn from the same population distribution.  
+
+Iid random variables are the default model for random samples.
 
 
+## Expected values module
+Expected values are useful for characterizing a distribution so that we don't have to talk about all the details of the distribution function. The mean is a characterization of the center of a distribution, while the variance and standard deviation are characterizations of how spread out it is.  
 
+### The population mean
+The **expected value** or **mean** of a random variable is the center of its distribution. For discrete random variable $X$ with PMF $p(x)$, it is defined as $E[X] = \sum_x xp(x)$, where the sum is taken over the possible values of $x$.  
 
+In a sense, $E[X]$ represents the *center of mass* of a collection of locations and weights, $\{x, p(x)\}$
 
+### Examples of population mean
+Suppose an unbiased coin is flipped and $X$ is declared $0$ or $1$ corresponding to a head or a tail, respectively. What is the expected value of $X$? Since $p(x)=0.5$:  
+    
+$E[X] = 0.5 \times 0 + 0.5 \times 1 = 0.5$  
 
+What about a biased coin?
+Suppose that a random variable, $X$, is such that $P(X=1) = p$ and $P(X=0) = (1 - p)$. This is a biased coin when $p\neq 0.5$. Its expected value is just
+$E[X] = 0 * (1 - p) + 1 * p = p$
 
+Suppose that a die is rolled and $X$ is the number face up. What is the expected value of $X$?  
 
+$E[X] = 1 \times \frac{1}{6} + 2 \times \frac{1}{6} + 3 \times \frac{1}{6} + 4 \times \frac{1}{6} + 5 \times \frac{1}{6} + 6 \times \frac{1}{6} = 3.5$  
 
+Thinking in terms of center or mass, a geometric argument makes this answer obvious without calculation.
+
+```{r die_rolls, fig.align='left', fig.height=4, fig.width=8}
+ggplot(data.frame(x = factor(1 : 6), y = rep(1/6, 6)), aes(x = x, y = y)) + geom_bar(stat = "identity", colour = 'black', fill = "lightblue")
+```
+
+For a continuous random variable, $X$, with density $f(x)$, the expected value is again exactly the center of mass of the density.   
+
+### The sample mean
+The **sample** expected values (the sample mean and variance) will
+estimate the population versions.  
+
+The sample mean estimates the population mean. The center of mass of the data is the empirical mean $\bar X = \sum_{i=1}^n x_i p(x_i)$ where $p(x_i) = 1/n$. In other words, the probability of each *sample* event is assumed to be identical.
+
+### Facts about expected values
+The **average** of a random variable is itself a random variable and its associated distribution has an expected value.  
+
+The center of this distribution is the same as that of the original distribution.  
+
+Therefore, the expected value of the **sample mean** is the population mean that it's trying to estimate.
+
+When the expected value of an estimator is what its trying to estimate, we say that the estimator is **unbiased**.
+
+### Simulation experiment
+Consider a simulation experiment in which we compare the expected value of x die rolls. We could do a large number of single die rolls and get a sample distribution (roughly equal across $x=1:6$). And we can compare this distribution with the average of 2, 3, or 4 die rolls.
+
+```{r die_rolls2, fig.align='left', fig.height=4, fig.width=8, warning=FALSE, error=FALSE, message=FALSE}  
+nosim <- 10000
+dat <- data.frame(
+  x = c(sample(1 : 6, nosim, replace = TRUE),
+        apply(matrix(sample(1 : 6, nosim * 2, replace = TRUE), 
+                     nosim), 1, mean),
+        apply(matrix(sample(1 : 6, nosim * 3, replace = TRUE), 
+                     nosim), 1, mean),
+        apply(matrix(sample(1 : 6, nosim * 4, replace = TRUE), 
+                     nosim), 1, mean)
+        ),
+  size = factor(rep(1 : 4, rep(nosim, 4))))
+g <- ggplot(dat, aes(x = x, fill = size)) 
+g<- g + geom_histogram(alpha = .20, binwidth=.25, colour = "black") 
+g + facet_grid(. ~ size)
+```
+As the number of die rolls increases, the distribution of sample outcomes (the average of the rolls) becomes more and more gaussian with a mean of about what we know it should be ($E[x]=3.5$).
+
+###Sumarizing what we know
+- Expected values are properties of distributions
+- The population mean is the center of mass of population
+- The sample mean is the center of mass of the observed data
+- The sample mean is an estimate of the population mean
+- The sample mean is unbiased 
+  - The population mean of its distribution is the mean that it's
+  trying to estimate
+- The more data that goes into the sample mean, the more 
+concentrated its density / mass function is around the population mean
