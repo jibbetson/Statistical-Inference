@@ -1,0 +1,38 @@
+---
+title: "Quiz notes"
+author: "James Ibbetson"
+date: "10/26/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+###Quiz 1
+**Question:** If $F \equiv$ `father has flu`, $M \equiv$ `mother has flu`, and given $P(F)=0.12, P(F \cap M)=0.06, P(F \cup M)=0.17$ then what is the probability that `mother has flu`, $P(M)$?
+
+$P(F \cup M) = P(F) + P(M) - P(F \cap M)$  
+$\implies P(M) = P(F \cup M) - P(F) + P(F \cap M)$  
+$\implies P(M) = 0.17 - 0.12 + 0.06 = 0.11$  
+
+**Question:** If $X \equiv$ `earnings` and there are two possible outcomes, $X_1 = X, X_2 = -Y$, with probability $P(X_1)=p$, then what has to be true so that the expected return is zero?  
+
+$E[X] = \sum_x xp(x) = pX - (1-p)Y$ so for $E[X] = 0$ we need $pX = (1-p)Y \implies \frac{Y}{X} = p/(1-p)$.  
+
+**Question:**  If $D \equiv$ `is pregnant`, $[+] \equiv$ `tested positive`, and $[-] \equiv$ `tested negative`, and given `prevalence` $= 0.3$, `sensitivity` $= 0.75$ and `specificity` $= 0.52$, then what is the probability of pregnancy given a positive test?  
+
+`prevalence` $= P(D)$, `sensitivity` $= P(+|D)$, `specificity` $= P(-|D^c)$, and we need to solve for $P(D|+)$. To do so, use Bayes' rule:   
+
+$P(D|+) = \frac{P(+|D)P(D)}{P(+|D)P(D)+P(+|D^c)P(D^c)}$  
+
+and note that  
+$P(D^c)=1-P(D)=0.7$  
+$P(+|D^c)=1-P(-|D^c)=0.48$.  
+
+Substituting values into Bayes' rule we get:  
+$P(D|+) = \frac{0.75 \times 0.3}{0.75 \times 0.3 + 0.48 \times 0.7} \approx 40\%$.
+
+
+
+

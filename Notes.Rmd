@@ -20,6 +20,12 @@ A probability measure, $P$, is a function from the collection of possible events
 2. $P(\text{all possible events}) = 1$ (i.e. something must happen)
 3. If $E_1$ and $E_2$ are mutually exclusive events $P(E_1 \cup E_2) = P(E_1) + P(E_2)$. This implies $P(\cup_{i=1}^n A_i) = \sum_{i=1}^n P(A_i)$ where the ${A_i}$ are mutually exclusive.
 
+These are the 3 basic rules of probability. Also known as Kolmogorov's 3 rules.
+
+Some consequences:  
+- The probability of at least one of two (or more) things that cannot simultaneously occur (mutually exclusive) is the sum of their respective probabilities.  
+- For two events, the probability that at least one occurs is the sum of their probabilities minus their intersection (i.e. both occur). In math speak, $P(A \cup B) = P(A) + P(B) - P(A \cap B)$.  
+
 A probability mass function, $p$, evaluated at a value $x$ is the probability that a random variable takes that value. It applies to discrete values.  
 
 1. $p(x) \geq 0$ for all $x$.
@@ -28,7 +34,7 @@ A probability mass function, $p$, evaluated at a value $x$ is the probability th
 Example: the Bernouilli distribution, where $p(x) = \theta^{x} (1 - \theta)^{1-x}$. In the case of two possible outcomes, 0 and 1, then $p(1)=\theta$ and $p(0)=1-\theta$.
 
 
-###Probability density functions (important)
+###Probability density functions
 A probability density function, *pdf*, is equivalent to probability mass function except for random variables whose values exist **on a continuum**. In this case, areas under *pdfs* correspond to probabilities. To be a valid function $f$ must satisfy:
 
 1. $f(x) \geq 0$ for all $x$  
@@ -42,7 +48,7 @@ In `R` the `pbeta(x, a, b)` function gives the cumulative probability for the be
 
 The **survival function** of a random variable $X$ is the probability the random variable is greater then the value $x$, defined as $S(x) = P(X > x)$ or $S(x) = 1 - F(x)$.
 
-Quantiles are related to probability distribution functions. Specifically, the $\alpha$th quantile of $F(x)$ is the value of $x$ such that $F(x_\alpha)=\alpha$. That is, what value of $x$ should we choose such that the area under $f(x)$ up to $x$ is equal to $\alpha$?  
+**Quantiles** are related to probability distribution functions. Specifically, the $\alpha$th quantile of $F(x)$ is the value of $x$ such that $F(x_\alpha)=\alpha$. That is, what value of $x$ should we choose such that the area under $f(x)$ up to $x$ is equal to $\alpha$?  
 
 In `R` use the function `qbeta(x, a, b)` for quantiles of the beta distribution function.
 
@@ -52,38 +58,38 @@ Percentiles are simply quantiles with $\alpha$ expressed as a percent.
 ## Conditional probability module
 Conditional probability is when additional information is provided, i.e. conditions, which changes the probability of an event occurring. For example, if you roll a die and are told that the value is odd then the probability of having rolled a $1$ is no longer $\frac{1}{6}$ but $\frac{1}{3}$.
 
-Let $B$ be an event so that $P(B) > 0$. The probability of an event $A$ given that $B$ has occurred is written as $P(A ~|~ B)$. Then the conditional probability of an event $A$ given that $B$ has occurred is:
-$$
-P(A ~|~ B) = \frac{P(A \cap B)}{P(B)}
-$$
+Let $B$ be an event so that $P(B) > 0$. The probability of an event $A$ given that $B$ has occurred is written as $P(A ~|~ B)$. Then the conditional probability of an event $A$ given that $B$ has occurred is:  
+
+$P(A ~|~ B) = \frac{P(A \cap B)}{P(B)}$  
+
 If $A$ and $B$ are independent then $P(A ~|~ B) = \frac{P(A) P(B)}{P(B)} = P(A)$.
 
 ###Bayes' rule & diagnostic tests
-**Bayes' rule** is a famous example of conditional probability in cases where we know some marginal probabilities. It is formally written as:
-$$
-P(B ~|~ A) = \frac{P(A ~|~ B) P(B)}{P(A ~|~ B) P(B) + P(A ~|~ B^c)P(B^c)}.
-$$
-The $X^c$ notation is shorthand for not $X$, and $P(X^c) = 1 - P(X)$.
+**Bayes' rule** is a famous example of conditional probability in cases where we know some marginal probabilities. It is formally written as:  
+
+$P(B ~|~ A) = \frac{P(A ~|~ B) P(B)}{P(A ~|~ B) P(B) + P(A ~|~ B^c)P(B^c)}$.  
+
+The $B^c$ notation is shorthand for not $B$, and by definition (since they are mutually exclusive) $P(B^c) = 1 - P(B)$.
 
 Bayes' rule is very useful in diagnostic tests, where the result of the test can be either positive $+$ or negative $-$.  
 
-The **sensitivity** is defined as the probability that the test is positive given that the subject actually **has** the disease, $P(+ ~|~ D)$.  
+The **prevalence of the disease** is the marginal probability of disease, $P(D)$.  
 
-The **specificity** is defined as the probability that the test is negative given that the subject does **not have** the disease, $P(- ~|~ D^c)$.  
+The **sensitivity** is defined as the probability that a test for the disease is positive given that the subject actually **has** the disease, $P(+ ~|~ D)$.  
 
-The **positive predictive value** is the probability that the subject has the disease given that the test is positive, $P(D ~|~ +)$.  
+The **specificity** is defined as the probability that a test is negative given that the subject does **not have** the disease, $P(- ~|~ D^c)$.  
 
-The **negative predictive value** is the probability that the subject does not have the disease given that the test is negative, $P(D^c ~|~ -)$.  
+The **positive predictive value** is the probability that the subject has a disease given that the test is positive, $P(D ~|~ +)$.  
 
-The **prevalence of the disease** is the marginal probability of disease, $P(D)$.
+The **negative predictive value** is the probability that the subject does not have a disease given that the test is negative, $P(D^c ~|~ -)$.  
 
 The **diagnostic likelihood ratio of a positive test**, labeled $DLR_+$, is $P(+ ~|~ D) / P(+ ~|~ D^c)$, which is the $sensitivity / (1 - specificity)$.  
 
 The **diagnostic likelihood ratio of a negative test**, labeled $DLR_-$, is $P(- ~|~ D) / P(- ~|~ D^c)$, which is the $(1 - sensitivity) / specificity$.  
 
+### IID random variables
 Event $A$ is **independent** of $B$ if $P(A ~|~ B) = P(A)$, or equivalently if $P(A \cap B) = P(A)P(B)$.  
 
-### IID random variables
 Random variables are said to be **iid** if they are **independent and identically distributed**:
 
 - Independent: statistically unrelated from one and another  
@@ -95,21 +101,19 @@ Iid random variables are the default model for random samples.
 ## Expected values module
 Expected values are useful for characterizing a distribution so that we don't have to talk about all the details of the distribution function. The mean is a characterization of the center of a distribution, while the variance and standard deviation are characterizations of how spread out it is.  
 
-### The population mean
-The **expected value** or **mean** of a random variable is the center of its distribution. For discrete random variable $X$ with PMF $p(x)$, it is defined as $E[X] = \sum_x xp(x)$, where the sum is taken over the possible values of $x$.  
+The **expected value** or **mean** of a random variable is the center of its distribution. For discrete random variable, $X$, with PMF $p(x)$, the mean is defined as $E[X] = \sum_x xp(x)$, where the sum is taken over the possible values of $x$.
 
 In a sense, $E[X]$ represents the *center of mass* of a collection of locations and weights, $\{x, p(x)\}$
 
-### Examples of population mean
-Suppose an unbiased coin is flipped and $X$ is declared $0$ or $1$ corresponding to a head or a tail, respectively. What is the expected value of $X$? Since $p(x)=0.5$:  
-    
-$E[X] = 0.5 \times 0 + 0.5 \times 1 = 0.5$  
+Example 1: Suppose an unbiased coin is flipped and $X$ is defined as $0$ or $1$ corresponding to a head or a tail, respectively. What is the expected value of $X$?  
 
-What about a biased coin?
-Suppose that a random variable, $X$, is such that $P(X=1) = p$ and $P(X=0) = (1 - p)$. This is a biased coin when $p\neq 0.5$. Its expected value is just
-$E[X] = 0 * (1 - p) + 1 * p = p$
+Since $p(x) = 0.5$, $E[X] = 0.5 \times 0 + 0.5 \times 1 = 0.5$  
 
-Suppose that a die is rolled and $X$ is the number face up. What is the expected value of $X$?  
+Example 2: What about a biased coin? Suppose that a random variable, $X$, where $P(X=1) = p$ and $P(X=0) = (1 - p)$ and $p\neq 0.5$.  
+
+Its expected value is $E[X] = 0 * (1 - p) + 1 * p = p$
+
+Example 3: Suppose that a die is rolled and $X$ is the number face up. What is the expected value of $X$?  
 
 $E[X] = 1 \times \frac{1}{6} + 2 \times \frac{1}{6} + 3 \times \frac{1}{6} + 4 \times \frac{1}{6} + 5 \times \frac{1}{6} + 6 \times \frac{1}{6} = 3.5$  
 
@@ -119,13 +123,19 @@ Thinking in terms of center or mass, a geometric argument makes this answer obvi
 ggplot(data.frame(x = factor(1 : 6), y = rep(1/6, 6)), aes(x = x, y = y)) + geom_bar(stat = "identity", colour = 'black', fill = "lightblue")
 ```
 
-For a continuous random variable, $X$, with density $f(x)$, the expected value is again exactly the center of mass of the density.   
+For a continuous random variable, $X$, with density $f(x)$, the expected value is again exactly the center of mass of the density.  
+
+**Variance** is a measure of the spread of the distribution. If $X$ is a random variable with mean $\mu$, the variance of $X$ is defined as  
+
+$Var(X) = E[(X - \mu)^2] = E[X^2] - E[X]^2$.  
+
+The rightmost equation is almost always used in practice. Thus the variance is the expected (squared) distance from the mean. Densities with a higher variance are more spread out than densities with a lower variance. The square root of the variance is called the **standard deviation**. The main benefit of working with standard deviations is that they have the same units as the data, whereas the variance has the units squared.  
 
 ### The sample mean
 The **sample** expected values (the sample mean and variance) will
-estimate the population versions.  
+estimate the population versions. The larger the sample size, the better the estimation.
 
-The sample mean estimates the population mean. The center of mass of the data is the empirical mean $\bar X = \sum_{i=1}^n x_i p(x_i)$ where $p(x_i) = 1/n$. In other words, the probability of each *sample* event is assumed to be identical.
+The center of mass of the data is the empirical mean of our sample, $\bar X = \sum_{i=1}^n x_i p(x_i)$ where $p(x_i) = 1/n$. Note that the probability of each *sample* event is assumed to be identical, which does **not** imply the probability of each outcome is identical.
 
 ### Facts about expected values
 The **average** of a random variable is itself a random variable and its associated distribution has an expected value.  
