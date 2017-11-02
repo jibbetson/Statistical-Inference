@@ -125,12 +125,6 @@ ggplot(data.frame(x = factor(1 : 6), y = rep(1/6, 6)), aes(x = x, y = y)) + geom
 
 For a continuous random variable, $X$, with density $f(x)$, the expected value is again exactly the center of mass of the density.  
 
-**Variance** is a measure of the spread of the distribution. If $X$ is a random variable with mean $\mu$, the variance of $X$ is defined as  
-
-$Var(X) = E[(X - \mu)^2] = E[X^2] - E[X]^2$.  
-
-The rightmost equation is almost always used in practice. Thus the variance is the expected (squared) distance from the mean. Densities with a higher variance are more spread out than densities with a lower variance. The square root of the variance is called the **standard deviation**. The main benefit of working with standard deviations is that they have the same units as the data, whereas the variance has the units squared.  
-
 ### The sample mean
 The **sample** expected values (the sample mean and variance) will
 estimate the population versions. The larger the sample size, the better the estimation.
@@ -167,7 +161,7 @@ g + facet_grid(. ~ size)
 ```
 As the number of die rolls increases, the distribution of sample outcomes (the average of the rolls) becomes more and more gaussian with a mean of about what we know it should be ($E[x]=3.5$).
 
-###Sumarizing what we know
+###Summarizing what we know
 - Expected values are properties of distributions
 - The population mean is the center of mass of population
 - The sample mean is the center of mass of the observed data
@@ -177,3 +171,128 @@ As the number of die rolls increases, the distribution of sample outcomes (the a
   trying to estimate
 - The more data that goes into the sample mean, the more 
 concentrated its density / mass function is around the population mean
+
+
+##Variability module
+**Variance** is a measure of the spread of the distribution of a population of possible experiment outcomes. If $X$ is a random variable with mean $\mu$, the population variance of $X$ is defined as:   
+$Var(X) = E[(X - \mu)^2] = E[X^2] - E[X]^2$.  
+
+The rightmost equation is almost always used in practice. Thus the variance is the expected (squared) distance from the population mean. Densities with a higher variance are more spread out than densities with a lower variance. The square root of the variance is called the **standard deviation**, and is usually denoted as $\sigma$. The main benefit of working with standard deviations is that they have the same units as the data, whereas variance has the units squared.  
+
+For a coin toss:  
+$E[X] = 0 \times (1-p) + 1 \times p = p$  
+$E[X^2] = E[X] = p$  
+$Var(X) = E[X^2] - E[X]^2 = p - p^2 = p(1-p)$  
+
+The **sample** variance is $S^2 = 1/(n-1) \times \sum_{i-1}(X_i - \bar{X})^2$ where n is the number of observations. Note the division by $(n-1)$ not $n$ (something to do with unbiased-ness).   
+
+The sample variance is itself a random variable so it has an associated population distribution. That is, if you conduct the sampling experiment many times, the variance will vary about an average value *whose expected value is just the population variance*.  
+
+Next, let's consider the variation in the distribution of means of random samples from a population, with $n$ observations per sample. If $\bar{X}$ is a sample mean, and $\mu$ the mean of the population, then the expected value of $\bar{X}$ is just $\mu$.  
+
+The variance of the sample mean, $Var(\bar{X})$, is called the **standard error of the mean** and is related to the standard deviation of the population, $\sigma$:  
+$Var(\bar{X}) = \sigma^2 / n$.  
+
+**Standard normals** have variance of 1, so means of $n$ standard normals have a standard deviation of $1/\sqrt{n}$.  
+
+###Variance examples
+On a computer it's easy to simulate sample variances and distribution of sample variances to verify these claims. A couple of examples:
+
+Start with the normal distribution:  
+$f(x) = 1/\sqrt{2\pi\sigma} \times e^{-(x - μ)^2/2 σ^2}$  
+
+```{r var_sim1}
+# normal distribution with mean = 0, sd = 1.
+# The standard deviation of the mean of 10 observations
+# should be 1/sqrt(10) or about 0.32
+# so we do 1000 simulations to check
+nosim <- 1000
+n <- 10
+sd(apply(matrix(rnorm(nosim * n), nosim), 1, mean))
+```
+
+Next try the poisson distribution:  
+$p(x)=\lambda^x exp(-\lambda)/x!$
+```{r var_sim2}
+# poisson distribution with lambda = 4 = mean & variance.
+# The standard deviation of the mean of 10 observations
+# should be 2/sqrt(10) or about 0.63
+# so we do 1000 simulations to check
+nosim <- 1000
+n <- 10
+sd(apply(matrix(rpois(nosim * n, 4), nosim), 1, mean))
+```
+###Summarizing variance
+
+- The sample variance estimates the population variance
+- The distribution of the sample variance is centered on what its estimating (means the sampling is unbiased)
+- It gets more concentrated around the population variance the larger the sample sizes
+- The variance of the sample mean is the population variance divided by $n$ (i.e. $Var(\bar{X})=\sigma^2/n$)
+
+
+##Distribution module
+Some important, common distributions.
+
+###Bernouilli
+The simplest is the Bernoulli distribution, which arises as a result of a binary outcome. Bernoulli random variables take the values of 1 or 0 with probabilities $p$ and $1-p$ respectively.
+Bernouilli mass function is  
+$P(X = x) = p^x(1-p)^{1-x}$  
+$E[X]$ is $p$ and $Var(X)$ is $1-p$  
+
+###Binomial
+A binomial distribution is what you get from multiple (i.e. the sum of) **iid** Bernouilli events. Mathematically, let $X_1,\ldots,X_n$ be iid Bernoulli$(p)$; then $X = \sum_{i=1}^n X_i$ is a binomial random variable. The binomial mass function is:  
+$\begin{aligned} P(X = x) = \binom{n}{x} p^x(1 - p)^{n-x} \end{aligned}$  
+for $x=0,\ldots,n$ and where $\binom{n}{x} = \frac{n!}{x!(n-x)!}$.  
+$E[X]$ is $p$ and $Var(X)$ is $1-p$  
+
+In R use the `choose()`, `pbinom()` and `qbinom()` functions for working with binomial distribution problems.  
+
+###Normal
+The most important distribution is the normal distribution or the so-called **bell curve**. Its mass function is the gaussian:  
+$f(x) = (2\pi\sigma)^{-1/2}e^{-(x - μ)^2/2 σ^2}$  
+$E[X] = \mu \text{ and } Var(X) = \sigma^2$  
+
+Usually written in shorthand as $X \sim N(\mu, \sigma^2)$.  
+
+**Standard** normal distributions are special cases where $\mu = 0, \sigma = 1$.  
+
+The areas under the normal distribution for $\pm1 \sigma$, $\pm2 \sigma$ and $\pm3 \sigma$ from the mean are 68%, 95% and 99%, respectively. Memorize!  
+
+$1.28, 1.645, 1.96 \text{ and } 2.33$ standard deviation units from the mean are the $90^{th}, 95^{th}, 97.5^{th}, \text{ and } 99^{th}$ percentiles, respectively. Memorize!  
+
+In R use the `pnorm()` and `qnorm()` functions when working with normal distributions. E.g. `pnorm(x, mean=mu, sd=sigma, lower.tail=FALSE)`.  
+
+###Poisson
+The Poisson distribution is another very useful distribution, which is used to model counts, event-time or survival data, contingency tables. Its mass function is:  
+$f(x) = \lambda^x exp(-\lambda)/x!$  
+Both $E[X] = \lambda$ and $Var(X) = \lambda$.  
+
+In R use the `ppois()` and `qpois()` functions for working with Poisson distribution problems.  
+
+Poisson random variables are also used to model rates.  
+$X \sim Poisson(\lambda t)$ where $\lambda = E[X/t]$ is the expected count per unit of time, and $t$ is the total monitoring time.  
+
+An example: The number of people that show up at a bus stop is Poisson with a mean of $2.5$ per hour. If watching the bus stop for 4 hours, what is the probability that $3$ or fewer people show up for the whole time?  
+```{r poisson_rate_ex}
+ppois(3, lambda = 2.5 * 4)
+```
+
+Poisson distributions are also useful for approximating binomials when $n$ is very large and $p$ is very small. Define $\lambda = np$. 
+
+An example: We flip a coin with success probablity $p=0.01$ five hundred times. What's the probability of 2 or fewer successes?
+```{r binom_approx_ex}
+pbinom(2, size = 500, prob = 0.01)
+```
+```{r poisson_approx_ex}
+ppois(2, lambda = 500 * 0.01)
+```
+
+
+##Asymptotics module
+
+
+
+
+
+
+
