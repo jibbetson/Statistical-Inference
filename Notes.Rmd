@@ -1,7 +1,7 @@
 ---
 title: "Lecture notes"
 author: "James Ibbetson"
-date: "October 25, 2017"
+date: "November 13, 2017"
 output: 
   html_document:
     toc: true
@@ -12,6 +12,9 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 ```
+
+##Disclaimer
+**What follows is not original. It borrows heavily directly from the [course lecture notes and source code](https://github.com/bcaffo/courses/tree/master/06_StatisticalInference).**  
 
 ## Probability module
 A probability measure, $P$, is a function from the collection of possible events so that the following hold:
@@ -119,7 +122,7 @@ $E[X] = 1 \times \frac{1}{6} + 2 \times \frac{1}{6} + 3 \times \frac{1}{6} + 4 \
 
 Thinking in terms of center or mass, a geometric argument makes this answer obvious without calculation.
 
-```{r die_rolls, fig.align='left', fig.height=4, fig.width=8}
+```{r die_rolls}
 ggplot(data.frame(x = factor(1 : 6), y = rep(1/6, 6)), aes(x = x, y = y)) + geom_bar(stat = "identity", colour = 'black', fill = "lightblue")
 ```
 
@@ -143,7 +146,7 @@ When the expected value of an estimator is what its trying to estimate, we say t
 ### Simulation experiment
 Consider a simulation experiment in which we compare the expected value of x die rolls. We could do a large number of single die rolls and get a sample distribution (roughly equal across $x=1:6$). And we can compare this distribution with the average of 2, 3, or 4 die rolls.
 
-```{r die_rolls2, fig.align='left', fig.height=4, fig.width=8, warning=FALSE, error=FALSE, message=FALSE}  
+```{r die_rolls2, warning=FALSE, error=FALSE, message=FALSE}  
 nosim <- 10000
 dat <- data.frame(
   x = c(sample(1 : 6, nosim, replace = TRUE),
@@ -156,7 +159,7 @@ dat <- data.frame(
         ),
   size = factor(rep(1 : 4, rep(nosim, 4))))
 g <- ggplot(dat, aes(x = x, fill = size)) 
-g<- g + geom_histogram(alpha = .20, binwidth=.25, colour = "black") 
+g<- g + geom_histogram(alpha = .50, binwidth=.25, colour = "black") 
 g + facet_grid(. ~ size)
 ```
 As the number of die rolls increases, the distribution of sample outcomes (the average of the rolls) becomes more and more gaussian with a mean of about what we know it should be ($E[x]=3.5$).
@@ -191,7 +194,10 @@ The sample variance is itself a random variable so it has an associated populati
 Next, let's consider the variation in the distribution of means of random samples from a population, with $n$ observations per sample. If $\bar{X}$ is a sample mean, and $\mu$ the mean of the population, then the expected value of $\bar{X}$ is just $\mu$.  
 
 The variance of the sample mean, $Var(\bar{X})$, is called the **standard error of the mean** and is related to the standard deviation of the population, $\sigma$:  
-$Var(\bar{X}) = \sigma^2 / n$.  
+$Var(\bar{X}) = Var(X)/n = \sigma^2 / n$.  
+
+Or in terms of the standard deviation:  
+$\sigma(\bar{X}) = \sqrt{Var(\bar{X})} = \sqrt{Var(X)}/\sqrt{n} = \sigma / \sqrt{n}$.
 
 **Standard normals** have variance of 1, so means of $n$ standard normals have a standard deviation of $1/\sqrt{n}$.  
 
@@ -267,17 +273,16 @@ The Poisson distribution is another very useful distribution, which is used to m
 $f(x) = \lambda^x exp(-\lambda)/x!$  
 Both $E[X] = \lambda$ and $Var(X) = \lambda$.  
 
-In R use the `ppois()` and `qpois()` functions for working with Poisson distribution problems.  
+Poisson random variables are also used to model rates. The probability of $X$ observations is $X \sim Poisson(\lambda t)$, where $\lambda = E[X/t]$ is the expected count per unit of time, and $t$ is the total monitoring time.  
 
-Poisson random variables are also used to model rates.  
-$X \sim Poisson(\lambda t)$ where $\lambda = E[X/t]$ is the expected count per unit of time, and $t$ is the total monitoring time.  
+In R use the `ppois()` and `qpois()` functions for working with Poisson distribution problems.  
 
 An example: The number of people that show up at a bus stop is Poisson with a mean of $2.5$ per hour. If watching the bus stop for 4 hours, what is the probability that $3$ or fewer people show up for the whole time?  
 ```{r poisson_rate_ex}
 ppois(3, lambda = 2.5 * 4)
 ```
 
-Poisson distributions are also useful for approximating binomials when $n$ is very large and $p$ is very small. Define $\lambda = np$. 
+Poisson distributions are also useful for approximating binomials when $n$ is very large and $p$ is very small. Define $\lambda = n \times p$. 
 
 An example: We flip a coin with success probablity $p=0.01$ five hundred times. What's the probability of 2 or fewer successes?
 ```{r binom_approx_ex}
@@ -289,10 +294,74 @@ ppois(2, lambda = 500 * 0.01)
 
 
 ##Asymptotics module
+Asymptotics is the term for the behavior of statistics as the sample size goes to infinity. Forms the basis for frequency interpretation of probabilites.  
 
+The so-called Law of Large Numbers says:  
 
+- The average converges to the population mean  
+- The sample mean of iid samples is **consistent** for the population mean  
+- The sample variance and sample standard deviation of iid random variables are also **consistent**.  
 
+###The Central limit theorem
+The central limit theorem, CLT, states that the distribution of averages of iid variables becomes that of a standard normal for sufficiently large sample sizes. 
 
+$$\frac{\bar X_n - \mu}{\sigma / \sqrt{n}} = 
+\frac{\sqrt n (\bar X_n - \mu)}{\sigma}
+= \frac{\text{Estimate} - \text{Mean of estimate}}{\text{Std. Err. of estimate}}$$
+has a distribution like that of a standard normal for large $n$.  
+
+In other words, the distribution of the mean of n samples will approximate a normal distribution about the population mean for large n. Or $\bar X_n \cong N(\mu, \sigma^2/n)$ for large $n$.  
+
+The CLT applies in an endless variety of settings. Possibly the most important theorem in all of statistics!  
+
+**Experiment 1 (die rolling)**  
+In this case, the population mean is 3.5, and the population variance is 1.71. So let's calculate a bunch of sample means for different n (10, 20, 30), and compare the results to a normal distribution. 
+
+```{r, CLT-dieroll}
+nosim <- 1000
+cfunc <- function(x, n) sqrt(n) * (mean(x) - 3.5) / 1.71
+dat <- data.frame(
+  x = c(apply(matrix(sample(1 : 6, nosim * 10, replace = TRUE), 
+                     nosim), 1, cfunc, 10),
+        apply(matrix(sample(1 : 6, nosim * 20, replace = TRUE), 
+                     nosim), 1, cfunc, 20),
+        apply(matrix(sample(1 : 6, nosim * 30, replace = TRUE), 
+                     nosim), 1, cfunc, 30)
+        ),
+  size = factor(rep(c(10, 20, 30), rep(nosim, 3))))
+g <- ggplot(dat, aes(x = x, fill = size)) + 
+    geom_histogram(alpha = .50, binwidth=.3, col = "black", aes(y = ..density..)) 
+g <- g + stat_function(fun = dnorm, size = 1)
+g + facet_grid(. ~ size)
+```
+The takeaway from the plot is that the 'experimental' distribution of the sample means does in fact approximate a normal distribution for n as low as 30.  
+
+**Experiment 2 (coin flip)**
+```{r CLT-coinflip}
+nosim <- 1000
+cfunc <- function(x, n) 2 * sqrt(n) * (mean(x) - 0.5) 
+dat <- data.frame(
+  x = c(apply(matrix(sample(0:1, nosim * 10, replace = TRUE), 
+                     nosim), 1, cfunc, 10),
+        apply(matrix(sample(0:1, nosim * 20, replace = TRUE), 
+                     nosim), 1, cfunc, 20),
+        apply(matrix(sample(0:1, nosim * 30, replace = TRUE), 
+                     nosim), 1, cfunc, 30)
+        ),
+  size = factor(rep(c(10, 20, 30), rep(nosim, 3))))
+g <- ggplot(dat, aes(x = x, fill = size)) + 
+    geom_histogram(alpha = 0.5, binwidth=.3, colour = "black", aes(y = ..density..)) 
+g <- g + stat_function(fun = dnorm, size = 1)
+g + facet_grid(. ~ size)
+```
+In this case, n evidently needs to be larger than 30 but the trend is clearly heading in the right direction.  
+
+###Confidence intervals
+CLT says the distribution of the mean of n samples will approximate a normal distribution about the population mean for large n. But a normal distribution has long tails, so there is always the chance that a sample mean will be quite far from the population mean. Moreover, the probability will depend on n.
+
+This begs the questions: for finite n, what is the actual probability that the sample mean is within a specfic distance (in quantile units) of the population mean.
+
+This lecture was really confusing. My notes are incomplete - see the book for details.  
 
 
 
