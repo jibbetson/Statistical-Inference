@@ -1,0 +1,110 @@
+---
+title: "Extra notes"
+author: "James Ibbetson"
+date: "11/13/2017"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Disclaimer
+**What follows includes solutions to course homework problems. It is intended as a historical record of (a) my thinking, and (b) exercises with useful R functions that are new to me. If you, the reader, are taking the course then STOP READING! Using what follows would constitute a violation of course policy.**
+
+##Quiz 1
+*If $F \equiv$ `father has flu`, $M \equiv$ `mother has flu`, and given $P(F)=0.12, P(F \cap M)=0.06, P(F \cup M)=0.17$ then what is the probability , $P(M)$ that `mother has flu`?*  
+
+$P(F \cup M) = P(F) + P(M) - P(F \cap M)$  
+$\implies P(M) = P(F \cup M) - P(F) + P(F \cap M)$  
+$\implies P(M) = 0.17 - 0.12 + 0.06 = 0.11$  
+
+<br>
+*If $X \equiv$ `earnings` and there are two possible outcomes, $X_1 = X, X_2 = -Y$, with probability $P(X_1)=p$, then what has to be true so that the expected return is zero?*  
+
+$E[X] = \sum_x xp(x) = pX - (1-p)Y$ so for $E[X] = 0$ we need $pX = (1-p)Y \implies \frac{Y}{X} = p/(1-p)$.  
+
+<br>
+*If $D \equiv$ `is pregnant`, $[+] \equiv$ `tested positive`, and $[-] \equiv$ `tested negative`, and given `prevalence` $= 0.3$, `sensitivity` $= 0.75$ and `specificity` $= 0.52$, then what is the probability of pregnancy given a positive test?*  
+
+`prevalence` $= P(D)$, `sensitivity` $= P(+|D)$, `specificity` $= P(-|D^c)$, and we need to solve for $P(D|+)$. To do so, use Bayes' rule:   
+
+$P(D|+) = \frac{P(+|D)P(D)}{P(+|D)P(D)+P(+|D^c)P(D^c)}$  
+
+and note that  
+$P(D^c)=1-P(D)=0.7$,  
+$P(+|D^c)=1-P(-|D^c)=0.48$.  
+
+Substituting values into Bayes' rule we get:  
+$P(D|+) = \frac{0.75 \times 0.3}{0.75 \times 0.3 + 0.48 \times 0.7} \approx 40\%$.
+
+
+##Quiz 2
+*Suppose that diastolic blood pressures (DBPs) for men aged 35-44 are normally distributed with a mean of 80 (mm Hg) and a standard deviation of 10. What is the probability that a random 35-44 year old has a DBP less than 70?*  
+
+The answer is 16%. There are a few ways to get there.  
+
+First, recognize that 70 is one standard deviation from the mean. For the normal distribution $\pm 1\sigma$ contains 68% of the probability distribution. So 0.5 x (100%-68%) is 16%.
+
+Second, do it graphically/numerically using `qnorm()`.  
+
+```{r qnorm}
+x <- seq(0, 0.5, by = 0.01)
+y <- qnorm(x, mean = 80, sd = 10)
+plot(x, y, type = "l")
+abline(h = 70, lty = 2)
+```
+Lastly, use `pnorm()`.  
+```{r}
+pnorm(70, mean = 80, sd = 10)
+```
+
+<br>
+*Brain volume for adult women is normally distributed with a mean of about 1,100 cc for women with a standard deviation of 75 cc. What brain volume represents the 95th percentile?*  
+
+The answer is 1223. In R use `qnorm()`
+0.95, mean = 1100, sd = 75)`. Or from the notes, the 95th percentile corresponds to 1100 + 1.645 x 75.  
+```{r}
+qnorm(0.95, mean = 1100, sd = 75)
+```
+
+<br>
+*Same dataset as the previous question. Consider the sample mean of 100 random adult women from this population. What is the 95th percentile of the distribution of that sample mean?*  
+
+$\sigma(\bar{X}) = \sqrt{Var(\bar{X})} = \sqrt{Var(X)}/\sqrt{n} = \sigma / \sqrt{n}$.  
+
+So in this case, $\sigma(\bar{X}) = \sigma / \sqrt{n} = 75/10$, and the answer is approximately 1112 cc. Use `qnorm(0.95, mean = 1100, sd = 7.5)`. Or the 95th percentile corresponds to mean + 1.645 x sd.
+
+<br>
+*You flip a fair coin 5 times, about what's the probability of getting 4 or 5 heads?*  
+
+$\begin{aligned} P(X = x) = \binom{n}{x} p^x(1 - p)^{n-x} \end{aligned}$ where $\binom{n}{x} = \frac{n!}{x!(n-x)!}$  
+So in this case we need $P(X = 4) | P(X = 5)$, which can be calculated manually. Or use `pbinom()` with the `lower.tail` parameter set to FALSE for $P(X > p)$. See `help` for details.
+
+```{r pbinom}
+pbinom(3, size = 5, prob = 0.5, lower.tail = FALSE)
+```
+
+<br>
+*The respiratory disturbance index (RDI), a measure of sleep disturbance, for a specific population has a mean of 15 (sleep events per hour) and a standard deviation of 10. They are not normally distributed. Give your best estimate of the probability that a sample mean RDI of 100 people is between 14 and 16 events per hour?*  
+
+$\sigma(\bar{X}) = \sigma\div\sqrt{n} = 1$ in this case. So 14-16 events is $\pm 1 \sigma = 68\%$. Alternatively use `pnorm()`.  
+```{r}
+pnorm(16, mean = 15, sd = 1) - pnorm(14, mean = 15, sd = 1)
+```
+
+<br>
+*The number of people showing up at a bus stop is assumed to be Poisson with a mean of 5 people per hour. You watch the bus stop for 3 hours. About what's the probability of viewing 10 or fewer people?*  
+
+Since it's a rate problem, use the Poisson distribution. See `help` for details of `ppois()`.  
+
+```{r}
+ppois(10, lambda = 5 * 3)
+```
+
+
+
+
