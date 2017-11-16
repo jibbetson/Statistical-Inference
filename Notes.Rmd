@@ -1,7 +1,7 @@
 ---
 title: "Lecture notes"
 author: "James Ibbetson"
-date: "November 13, 2017"
+date: "November 15, 2017"
 output: 
   html_document:
     toc: true
@@ -302,7 +302,7 @@ The so-called Law of Large Numbers says:
 - The sample mean of iid samples is **consistent** for the population mean  
 - The sample variance and sample standard deviation of iid random variables are also **consistent**.  
 
-###The Central limit theorem
+###The Central Limit Theorem
 The central limit theorem, CLT, states that the distribution of averages of iid variables becomes that of a standard normal for sufficiently large sample sizes. 
 
 $$\frac{\bar X_n - \mu}{\sigma / \sqrt{n}} = 
@@ -334,6 +334,7 @@ g <- ggplot(dat, aes(x = x, fill = size)) +
 g <- g + stat_function(fun = dnorm, size = 1)
 g + facet_grid(. ~ size)
 ```
+
 The takeaway from the plot is that the 'experimental' distribution of the sample means does in fact approximate a normal distribution for n as low as 30.  
 
 **Experiment 2 (coin flip)**
@@ -354,14 +355,48 @@ g <- ggplot(dat, aes(x = x, fill = size)) +
 g <- g + stat_function(fun = dnorm, size = 1)
 g + facet_grid(. ~ size)
 ```
+
 In this case, n evidently needs to be larger than 30 but the trend is clearly heading in the right direction.  
 
 ###Confidence intervals
-CLT says the distribution of the mean of n samples will approximate a normal distribution about the population mean for large n. But a normal distribution has long tails, so there is always the chance that a sample mean will be quite far from the population mean. Moreover, the probability will depend on n.
+The CLT says for a sample comprised of $n$ iid trials the distribution of the sample means, $\bar{X}$, will approximate a normal distribution about the population mean, with standard deviation of $\sigma/\sqrt{n}$ ($\sigma$ being the population standard deviation). However, a normal distribution has long tails, so there is a chance that a sample mean will be far from the population mean.  
 
-This begs the questions: for finite n, what is the actual probability that the sample mean is within a specfic distance (in quantile units) of the population mean.
+This begs the questions: what is the probability that a sample mean is within a specfic distance (in quantile units) of the population mean?  
 
-This lecture was really confusing. My notes are incomplete - see the book for details.  
+From the normal distribution properties, we know that $\bar{X} > \mu + 2\sigma/\sqrt n$ 2.5% of the time, and $\bar{X} < \mu - 2\sigma/\sqrt n$ 2.5% of the time. Turning this around, we can say that $\bar{X} \pm 2\sigma/\sqrt n$ contains $\mu$ 95% of the time. Thus, $\bar{X} \pm 2\sigma/\sqrt n$ is said to be the 95% confidence interval for $\mu$. Other confidence intervals can be calculated by changing the 2 to an appropriate value (e.g. 1.645 for 90% confidence intervals).  
 
+In R, use `qnorm()` to calculate confidence intervals.
+```{r conf-interval}
+x <- 0.56 # sample mean
+n <- 40 # sample trial size
+sd <- 0.1 # standard devivation; 
+x + c(-1, 1)*qnorm(0.975)*sd/sqrt(n)
+```
+In other words, we can say the 95% confidence interval for the population mean in this case is from 0.529 to 0.591.  
 
+**A binomial simulation**  
+Recall that for a binary outcome (success = 1, fail = 0) with probability of success $p$:  
+- population mean $= p$  
+- population sd $ =\sqrt{p(1-p)}$  
+If we have a sample of n trials then:
+- each sample mean is $\hat p = \sum^n_i{x_i}/n$  
+- the set $\{\hat p\}$ have a normal distribution about p with standard deviation $\sqrt{p(1-p)/n}$. 
 
+So let's simulate the probability that $\{\hat p\}$ is within 2 standard deviations of the population mean.  
+
+```{r binom-sim}
+n <- 20 #trial size
+pvals <- seq(0.1, 0.9, by = 0.1) #probability of success = pop mean
+nsim <- 1000
+coverage <- sapply(pvals, function(p){
+    phats <- rbinom(n = nsim, prob = p, size = n) / n
+    ll <- phats - qnorm(0.975) * sqrt(phats * (1 - phats)/n)
+    ul <- phats + qnorm(0.975) * sqrt(phats * (1 - phats)/n)
+    mean(ll < p & ul > p)
+})
+plot(pvals, coverage, type = "l", lwd = 2, ylim = c(0.85, 1), main = "fraction of sims where phat is \n within 2 sigma of the population mean")
+```
+
+Now, why is the value of "coverage" not always 95% as the CLT says it should be? The problem is at low and high values of p, the trial size is not large enough for the the CLT to be accurate.  
+
+There is a quick fix to this issue: Add 2 successes and 2 failures to the $\hat{p}$ values.  
